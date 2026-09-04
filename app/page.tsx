@@ -1,14 +1,48 @@
 'use client'
 
 import Image from 'next/image'
-import { FormEvent, useMemo, useState } from 'react'
-import { CheckCircle2, ChevronDown, Loader2, Minus, Plus, ShieldCheck, ShoppingBag, Truck, X } from 'lucide-react'
+import { FormEvent, useState } from 'react'
+import {
+  CheckCircle2,
+  ChevronDown,
+  Coffee,
+  Laptop,
+  Loader2,
+  Minus,
+  Plus,
+  BookOpen,
+  ShieldCheck,
+  ShoppingBag,
+  Sparkles,
+  Sofa,
+  Truck,
+} from 'lucide-react'
 import { createOrder } from './actions/createOrder'
 
-const productImage = 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-rKrne6xJheMVqTuP85M7ADv7573KYJ.png'
-const lifestyleImage = 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ChatGPT%20Image%20Sep%204%2C%202026%2C%2006_20_09%20PM-JAjnIIG5l6pNHo4inB1jttIrWJs1gI.png'
-const detailImage = 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ChatGPT%20Image%20Sep%204%2C%202026%2C%2006_12_47%20PM-UR05WWSS5JJIy2f0oKlSHAeKmlIGHY.png'
-const productPrice = 3500
+const productImages = [
+  {
+    src: '/asghar/asghar-1.jpg',
+    alt: 'طاولة أسغار الخشبية - المنظر الرئيسي مع السطح المرفوع والرف السفلي',
+    caption: 'المنظر الرئيسي — تصميم أنيق ومبتكر',
+  },
+  {
+    src: '/asghar/asghar-2.jpg',
+    alt: 'تفاصيل السطح القابل للرفع وآلية التثبيت المعدنية لطاولة أسغار',
+    caption: 'تفاصيل الخشب وآلية الرفع السلسة',
+  },
+  {
+    src: '/asghar/asghar-3.jpg',
+    alt: 'طاولة أسغار الخشبية جانب الأريكة في غرفة المعيشة',
+    caption: 'مثالية بجانب الأريكة في غرفة المعيشة',
+  },
+  {
+    src: '/asghar/asghar-4.jpg',
+    alt: 'طاولة أسغار الخشبية بجانب السرير في غرفة النوم',
+    caption: 'قطعة دافئة ومثالية بجانب السرير',
+  },
+]
+
+const productPrice = 4000
 
 const wilayas = [
   'Adrar', 'Chlef', 'Laghouat', 'Oum El Bouaghi', 'Batna', 'Bejaia', 'Biskra', 'Bechar', 'Blida', 'Bouira',
@@ -32,10 +66,10 @@ const shippingRates: Record<string, { domicile: number; desk: number }> = {
   Timimoun: { domicile: 1400, desk: 800 }, 'El Meniaa': { domicile: 950, desk: 550 }, 'El M\'Ghair': { domicile: 850, desk: 550 },
 }
 
-const formatDzd = (value: number) => `${value.toLocaleString('en-US')} DA`
+const formatDzd = (value: number) => `${value.toLocaleString('en-US')} دج`
 
 export default function Page() {
-  const [menu, setMenu] = useState(false)
+  const [selectedImgIndex, setSelectedImgIndex] = useState(0)
   const [quantity, setQuantity] = useState(1)
   const [wilaya, setWilaya] = useState('')
   const [delivery, setDelivery] = useState<'domicile' | 'desk'>('domicile')
@@ -46,11 +80,12 @@ export default function Page() {
   const [orderError, setOrderError] = useState<string | null>(null)
   const [limitReached, setLimitReached] = useState(false)
 
+  const currentImage = productImages[selectedImgIndex]
   const shipping = wilaya ? (shippingRates[wilaya]?.[delivery] ?? (delivery === 'domicile' ? 700 : 450)) : 0
   const total = productPrice * quantity + shipping
 
-  const submitOrder = async (event: FormEvent<HTMLFormElement>) => { 
-    event.preventDefault(); 
+  const submitOrder = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
     setSubmitting(true)
     setOrderError(null)
 
@@ -79,9 +114,9 @@ export default function Page() {
     setSubmitting(false)
 
     if (res.success) {
-      setSubmitted(true);
+      setSubmitted(true)
       if (typeof window !== 'undefined' && (window as any).fbq) {
-        (window as any).fbq('track', 'Purchase', { value: total, currency: 'DZD' });
+        ;(window as any).fbq('track', 'Purchase', { value: total, currency: 'DZD' })
       }
     } else if ((res as any).limitReached) {
       setLimitReached(true)
@@ -91,26 +126,121 @@ export default function Page() {
   }
 
   return (
-    <main dir="rtl" className="flex min-h-screen flex-col bg-cream text-blackwood">
-      <header className="border-b border-burgundy/15 bg-cream px-5 py-5 md:px-10">
-        <div className="mx-auto flex max-w-6xl items-center justify-center">
-          <a href="#top" dir="ltr" className="font-serif text-3xl font-bold tracking-[-0.08em] text-burgundy">
+    <main dir="rtl" id="top" className="flex min-h-screen flex-col bg-cream text-blackwood selection:bg-wood/20">
+      {/* Top Banner */}
+      <div className="bg-blackwood py-2 text-center text-xs font-semibold tracking-wider text-wood-light">
+        توصيل إلى جميع الولايات · خشب بتشطيب أنيق · جودة مضمونة
+      </div>
+
+      {/* Navigation Header */}
+      <header className="sticky top-0 z-40 border-b border-burgundy/15 bg-cream/95 backdrop-blur-md px-5 py-4 md:px-10">
+        <div className="mx-auto flex max-w-6xl items-center justify-between">
+          <a href="#top" dir="ltr" className="font-serif text-3xl font-bold tracking-[-0.08em] text-burgundy transition-opacity hover:opacity-80">
             asyar<span className="text-wood">.</span>
+          </a>
+          <a
+            href="#order"
+            className="inline-flex items-center gap-2 border border-burgundy/30 bg-burgundy px-5 py-2 text-xs font-semibold text-cream transition-all hover:bg-blackwood"
+          >
+            <ShoppingBag className="h-4 w-4" />
+            <span>اطلب الآن ←</span>
           </a>
         </div>
       </header>
 
-      <section id="product" className="order-1 mx-auto grid max-w-6xl gap-8 px-5 py-8 md:grid-cols-[1.05fr_0.95fr] md:items-start md:gap-14 md:px-10 md:py-14"><div className="relative aspect-[1.12] overflow-hidden bg-wood-light md:order-2"><Image src={productImage} alt="منظم مفاتيح جداري من خشب الجوز من أسيار" fill priority className="object-cover object-[center_38%]" sizes="(max-width: 768px) 100vw, 52vw" /><div className="absolute bottom-4 right-4 bg-cream/90 px-4 py-2 text-xs tracking-[0.12em] text-burgundy">مصنوع من خشب طبيعي</div></div><div className="md:order-1 md:pt-5"><p className="text-xs tracking-[0.25em] text-wood">من مجموعة الأشياء اليومية</p><h1 className="mt-5 font-serif text-5xl leading-[1.05] tracking-[-0.04em] text-burgundy md:text-7xl">معلق الملابس <br /> العصري</h1><p className="mt-6 max-w-md text-base leading-8 text-burgundy/70">قطعة هادئة لمدخل بيتك. تصميم عملي من خشب الجوز، يرحّب بمفاتيحك ويمنح التفاصيل اليومية مكانًا يستحقها.</p><div className="mt-8 flex items-center gap-4 border-y border-burgundy/15 py-5"><span className="font-serif text-3xl text-burgundy">{formatDzd(productPrice)}</span><span className="text-xs text-burgundy/50">سعر المنتج</span></div><a href="#order" className="mt-8 inline-flex w-full items-center justify-center bg-burgundy px-6 py-4 text-sm tracking-[0.16em] text-cream transition-transform hover:-translate-y-1">احجز قطعتك <span className="mr-3">←</span></a><div className="mt-6 grid grid-cols-3 gap-3 text-center text-[11px] text-burgundy/65"><div><Truck className="mx-auto mb-2 h-5 w-5 text-wood" />توصيل سريع</div><div><ShieldCheck className="mx-auto mb-2 h-5 w-5 text-wood" />صنع بعناية</div><div><span className="mx-auto mb-2 block h-5 w-5 rounded-full border border-wood" />ضمان الجودة</div></div></div></section>
+      {/* FIRST SECTION: HERO SHOWCASE */}
+      <section id="product" className="mx-auto grid max-w-6xl gap-8 px-5 py-8 md:grid-cols-12 md:items-start md:gap-12 md:px-10 md:py-14">
+        {/* Images & Gallery (7 columns) */}
+        <div className="space-y-4 md:col-span-7">
+          <div className="relative aspect-[1.12] overflow-hidden rounded bg-wood-light shadow-md transition-all">
+            <Image
+              src={currentImage.src}
+              alt={currentImage.alt}
+              fill
+              priority
+              className="object-cover transition-opacity duration-300"
+              sizes="(max-width: 768px) 100vw, 58vw"
+            />
+          </div>
 
-      <section id="details" className="order-3 border-y border-burgundy/15 bg-burgundy px-5 py-12 text-cream md:px-10 md:py-16"><div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-3"><div><p className="text-xs tracking-[0.2em] text-wood-light">لماذا أسيار؟</p><h2 className="mt-4 font-serif text-4xl leading-tight">جمالٌ يسكن<br />في التفاصيل.</h2></div><div className="border-t border-cream/20 pt-5"><p className="text-xs text-wood-light">المادة</p><p className="mt-3 leading-7 text-cream/70">خشب جوز طبيعي بملمس دافئ وتدرجات فريدة. كل قطعة تحمل أثر الشجرة التي جاءت منها.</p></div><div className="border-t border-cream/20 pt-5"><p className="text-xs text-wood-light">الفكرة</p><p className="mt-3 leading-7 text-cream/70">صُنع ليبقى قريبًا منك؛ يلتقط الأشياء التي نحتاجها كل يوم، ويضيف لمسة من المعنى إلى المكان.</p></div></div></section>
+          {/* Thumbnails */}
+          <div className="grid grid-cols-4 gap-3">
+            {productImages.map((img, idx) => (
+              <button
+                key={img.src}
+                type="button"
+                onClick={() => setSelectedImgIndex(idx)}
+                className={`relative aspect-square overflow-hidden rounded border-2 transition-all ${
+                  selectedImgIndex === idx
+                    ? 'border-burgundy ring-2 ring-burgundy/30 scale-[1.03]'
+                    : 'border-transparent opacity-75 hover:opacity-100'
+                }`}
+                aria-label={`عرض الصورة ${idx + 1}`}
+              >
+                <Image src={img.src} alt={img.alt} fill className="object-cover" sizes="120px" />
+              </button>
+            ))}
+          </div>
+        </div>
 
-      <section className="order-4 mx-auto max-w-6xl px-5 py-12 md:px-10 md:py-20"><div className="grid gap-8 md:grid-cols-2 md:items-center"><div className="relative aspect-[4/5] overflow-hidden bg-wood-light"><Image src={lifestyleImage} alt="علاقة أسيار الخشبية في مدخل منزل مع مفاتيح ومعاطف" fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" /></div><div className="space-y-8 md:px-8"><div><p className="text-xs tracking-[0.2em] text-wood">علاقة أسيار الخشبية</p><h2 className="mt-4 font-serif text-4xl leading-tight text-burgundy md:text-5xl">قطعة واحدة.<br />استخدامات متعددة.</h2><p className="mt-5 leading-8 text-burgundy/70">صُممت أسيار لتمنح الأشياء التي ترافقك يوميًا مكانًا واضحًا وجميلًا. من مفاتيحك عند الباب إلى معطفك وحقيبتك، كل شيء يبقى قريبًا ومرتبًا.</p></div><div className="grid grid-cols-2 gap-x-6 gap-y-5 text-sm text-burgundy"><div><strong className="block text-wood">01 — خشب طبيعي</strong><span className="mt-1 block leading-6 text-burgundy/65">خشب جوز بتدرجات دافئة وملمس لا يتكرر.</span></div><div><strong className="block text-wood">02 — خطاف عملي</strong><span className="mt-1 block leading-6 text-burgundy/65">لالمفاتيح والأغراض الصغيرة التي تحتاجها يوميًا.</span></div><div><strong className="block text-wood">03 — مساحة أكبر</strong><span className="mt-1 block leading-6 text-burgundy/65">للمعاطف والحقائب والأوشحة.</span></div><div><strong className="block text-wood">04 — موفّر للمساحة</strong><span className="mt-1 block leading-6 text-burgundy/65">يثبت على الحائط ويحافظ على ترتيب المدخل.</span></div></div></div></div></section>
+        {/* Product Details & Pitch (5 columns) */}
+        <div className="space-y-6 md:col-span-5 md:pt-2">
+          <div>
+            <span className="inline-block border border-wood/30 bg-wood-light/30 px-3 py-1 text-xs tracking-[0.18em] font-semibold text-wood">
+              من مجموعة القطع التي تصنع فرقًا
+            </span>
+            <h1 className="mt-4 font-serif text-4xl leading-[1.1] tracking-[-0.03em] text-burgundy md:text-5xl lg:text-6xl">
+              طاولة أسغار الخشبية
+            </h1>
+            <p className="mt-2 text-xl font-medium text-wood">أكثر من مجرد طاولة.</p>
+          </div>
 
-      <section className="order-5 bg-wood-light/35 px-5 py-12 md:px-10 md:py-20"><div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-[0.9fr_1.1fr] md:items-center"><div className="md:order-2"><p className="text-xs tracking-[0.2em] text-wood">جمال الخشب في تفاصيلك اليومية</p><h2 className="mt-4 font-serif text-4xl leading-tight text-burgundy md:text-5xl">أكثر من علاقة<br />للحائط.</h2><p className="mt-5 max-w-xl leading-8 text-burgundy/70">إنها قطعة تضيف النظام إلى مساحتك، والدفء إلى منزلك، والجمال إلى الأشياء التي تستخدمها كل يوم. مناسبة للمدخل، غرفة النوم، الممر، المكتب أو أي زاوية تحتاج إلى ترتيب إضافي.</p><div className="mt-8 flex flex-wrap gap-3 text-sm text-burgundy"><span className="border border-burgundy/20 bg-cream px-4 py-2">مفاتيحك</span><span className="border border-burgundy/20 bg-cream px-4 py-2">معاطفك</span><span className="border border-burgundy/20 bg-cream px-4 py-2">حقيبتك</span><span className="border border-burgundy/20 bg-cream px-4 py-2">إكسسواراتك</span></div></div><div className="relative aspect-[4/3] overflow-hidden bg-wood-light md:order-1"><Image src={detailImage} alt="علاقة أسيار الخشبية في مدخل عصري مع جاكيت ومفاتيح" fill className="object-cover" sizes="(max-width: 768px) 100vw, 55vw" /></div></div></section>
+          <p className="text-base leading-relaxed text-burgundy/80">
+            قطعة خشبية أنيقة صُممت لترافقك في لحظات العمل، الدراسة، القراءة وحتى الاسترخاء.
+          </p>
 
-      <section id="order" className="order-2 mx-auto max-w-6xl px-5 py-12 md:px-10 md:py-16">
+          <div className="rounded border border-burgundy/15 bg-wood-light/20 p-4 text-xs leading-relaxed text-burgundy/90">
+            <strong className="block mb-1.5 text-burgundy font-bold text-sm">كل ذلك في تصميم واحد:</strong>
+            سطح قابل للرفع، مساحة تخزين مخفية ورف سفلي عملي — يجمع بين جمال الخشب وسهولة الاستخدام.
+          </div>
+
+          {/* Price Box */}
+          <div className="flex items-baseline gap-4 border-y border-burgundy/15 py-4">
+            <span className="font-serif text-4xl font-bold text-burgundy">{formatDzd(productPrice)}</span>
+            <span className="text-xs text-burgundy/60">الدفع عند الاستلام بعد المعاينة</span>
+          </div>
+
+          {/* CTA Button */}
+          <a
+            href="#order"
+            className="inline-flex w-full items-center justify-center gap-3 bg-burgundy px-6 py-4.5 text-base font-semibold tracking-wider text-cream shadow-lg transition-all hover:bg-blackwood hover:-translate-y-0.5"
+          >
+            <span>اطلب قطعتك الآن</span>
+            <span className="text-lg">←</span>
+          </a>
+
+          {/* Trust Guarantees */}
+          <div className="grid grid-cols-3 gap-3 border-t border-burgundy/15 pt-5 text-center text-xs text-burgundy/80">
+            <div className="space-y-1.5 p-2 rounded bg-wood-light/20">
+              <Truck className="mx-auto h-5 w-5 text-wood" />
+              <span className="block font-medium">توصيل إلى جميع الولايات</span>
+            </div>
+            <div className="space-y-1.5 p-2 rounded bg-wood-light/20">
+              <Sparkles className="mx-auto h-5 w-5 text-wood" />
+              <span className="block font-medium">خشب بتشطيب أنيق</span>
+            </div>
+            <div className="space-y-1.5 p-2 rounded bg-wood-light/20">
+              <ShieldCheck className="mx-auto h-5 w-5 text-wood" />
+              <span className="block font-medium">جودة مضمونة</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECOND SECTION: ORDER FORM (PLACED DIRECTLY AFTER HERO SECTION) */}
+      <section id="order" className="mx-auto max-w-6xl px-5 py-8 md:px-10 md:py-12 border-t border-burgundy/15">
         {submitted ? (
-          <div className="mx-auto max-w-2xl overflow-hidden border-2 border-blackwood bg-card shadow-[0_12px_32px_rgba(31,6,4,0.12)] transition-all">
+          <div className="mx-auto max-w-2xl overflow-hidden border-2 border-blackwood bg-card shadow-[0_12px_32px_rgba(31,6,4,0.12)] transition-all rounded">
             <div className="bg-burgundy px-6 py-10 text-center text-cream">
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-wood-light text-burgundy shadow-inner">
                 <CheckCircle2 className="h-9 w-9 text-burgundy" />
@@ -122,19 +252,19 @@ export default function Page() {
                 {customerName ? `شكراً لك يا ${customerName}` : 'شكراً لك، تم استلام طلبك'}
               </h2>
               <p className="mt-3 text-sm leading-relaxed text-cream/90 md:text-base max-w-lg mx-auto">
-                يسعدنا اختيارك لمنتجات <strong>أسيار</strong>. نتمنى لك تجربة استثنائية مع هذه القطعة الخشبية المصنوعة بعناية.
+                يسعدنا اختيارك لمنتجات <strong>أسغار</strong>. نتمنى لك تجربة استثنائية مع هذه القطعة الخشبية المصنوعة بعناية.
               </p>
             </div>
 
             <div className="p-6 md:p-8 space-y-6">
-              <div className="border border-burgundy/15 bg-wood-light/20 p-5">
+              <div className="border border-burgundy/15 bg-wood-light/20 p-5 rounded">
                 <h3 className="font-serif text-lg font-bold text-burgundy border-b border-burgundy/15 pb-3 mb-4">
                   ملخص الطلب
                 </h3>
                 <div className="space-y-3 text-sm text-burgundy">
                   <div className="flex justify-between">
                     <span className="text-burgundy/60">المنتج:</span>
-                    <span className="font-semibold">معلق الملابس العصري × {quantity}</span>
+                    <span className="font-semibold">طاولة أسغار الخشبية × {quantity}</span>
                   </div>
                   {customerName && (
                     <div className="flex justify-between">
@@ -161,10 +291,10 @@ export default function Page() {
                 </div>
               </div>
 
-              <div className="flex items-start gap-4 border border-wood/40 bg-cream p-4 text-xs text-burgundy/80">
+              <div className="flex items-start gap-4 border border-wood/40 bg-cream p-4 rounded text-xs text-burgundy/80">
                 <Truck className="h-6 w-6 shrink-0 text-wood" />
                 <p className="leading-relaxed">
-                  <strong>التأكيد والتوصيل:</strong> سيقوم فريق أسيار بالتواصل معك هاتفياً عبر الرقم المذكور لتأكيد معلومات الشحن. الدفع يتم عند الاستلام.
+                  <strong>التأكيد والتوصيل:</strong> سيقوم فريق أسغار بالتواصل معك هاتفياً عبر الرقم المذكور لتأكيد معلومات الشحن. الدفع يتم عند الاستلام بعد معاينة المنتج.
                 </p>
               </div>
 
@@ -172,13 +302,13 @@ export default function Page() {
                 <button
                   type="button"
                   onClick={() => setSubmitted(false)}
-                  className="flex-1 border border-burgundy px-6 py-3.5 text-center text-sm font-semibold text-burgundy transition-colors hover:bg-wood-light/30"
+                  className="flex-1 border border-burgundy px-6 py-3.5 text-center text-sm font-semibold text-burgundy transition-colors hover:bg-wood-light/30 rounded"
                 >
                   طلب قطعة أخرى
                 </button>
                 <a
                   href="#top"
-                  className="flex-1 bg-burgundy px-6 py-3.5 text-center text-sm font-semibold text-cream transition-colors hover:bg-blackwood"
+                  className="flex-1 bg-burgundy px-6 py-3.5 text-center text-sm font-semibold text-cream transition-colors hover:bg-blackwood rounded"
                 >
                   العودة للرئيسية
                 </a>
@@ -186,7 +316,7 @@ export default function Page() {
             </div>
           </div>
         ) : limitReached ? (
-          <div className="mx-auto max-w-2xl overflow-hidden border-2 border-blackwood bg-card shadow-[0_12px_32px_rgba(31,6,4,0.12)]">
+          <div className="mx-auto max-w-2xl overflow-hidden border-2 border-blackwood bg-card shadow-[0_12px_32px_rgba(31,6,4,0.12)] rounded">
             <div className="bg-blackwood px-6 py-12 text-center text-cream">
               <div className="mx-auto mb-5 h-16 w-16 rounded-full border-2 border-wood-light/40 flex items-center justify-center">
                 <ShoppingBag className="h-8 w-8 text-wood-light" />
@@ -197,62 +327,66 @@ export default function Page() {
               </p>
             </div>
             <div className="p-6 md:p-8 text-center">
-              <a href="#top" className="inline-block bg-burgundy px-8 py-3.5 text-sm font-semibold text-cream transition-colors hover:bg-blackwood">
+              <a href="#top" className="inline-block bg-burgundy px-8 py-3.5 text-sm font-semibold text-cream transition-colors hover:bg-blackwood rounded">
                 العودة للرئيسية
               </a>
             </div>
           </div>
         ) : (
-          <div className="mx-auto max-w-3xl overflow-hidden border-2 border-blackwood bg-card shadow-[0_8px_0_rgba(31,6,4,0.12)]">
-            <div className="border-b border-blackwood/15 px-5 py-6 md:px-8">
-              <h2 className="font-serif text-3xl text-burgundy">أكمل طلبك</h2>
-              <p className="mt-2 text-sm text-burgundy/60">أدخل معلوماتك وسنتواصل معك لتأكيد الطلب.</p>
+          <div className="mx-auto max-w-3xl overflow-hidden border-2 border-blackwood bg-card shadow-[0_8px_0_rgba(31,6,4,0.12)] rounded">
+            <div className="border-b border-blackwood/15 px-5 py-6 md:px-8 bg-wood-light/20">
+              <h2 className="font-serif text-3xl text-burgundy">أكمل طلبك — طاولة أسغار الخشبية</h2>
+              <p className="mt-2 text-sm text-burgundy/70">أدخل معلوماتك وسنتواصل معك فوراً لتأكيد التوصيل.</p>
             </div>
             <form onSubmit={submitOrder} className="space-y-4 p-5 md:p-8">
               <div className="grid gap-4 md:grid-cols-2">
-                <label className="text-sm text-burgundy">الاسم واللقب
-                  <input required name="name" placeholder="الاسم واللقب" className="mt-2 w-full border border-burgundy/35 bg-cream px-4 py-3 text-right outline-none focus:border-burgundy" />
+                <label className="text-sm font-semibold text-burgundy">الاسم واللقب
+                  <input required name="name" placeholder="الاسم الكامل" className="mt-2 w-full border border-burgundy/35 bg-cream px-4 py-3 text-right outline-none focus:border-burgundy rounded" />
                 </label>
-                <label className="text-sm text-burgundy">رقم الهاتف
-                  <input required name="phone" type="tel" placeholder="05 xx xx xx xx" className="mt-2 w-full border border-burgundy/35 bg-cream px-4 py-3 text-right outline-none focus:border-burgundy" />
+                <label className="text-sm font-semibold text-burgundy">رقم الهاتف
+                  <input required name="phone" type="tel" placeholder="05 xx xx xx xx" className="mt-2 w-full border border-burgundy/35 bg-cream px-4 py-3 text-right outline-none focus:border-burgundy rounded" />
                 </label>
               </div>
               <div className="grid gap-4 md:grid-cols-2">
-                <label className="text-sm text-burgundy">الولاية
-                  <select required value={wilaya} onChange={(event) => setWilaya(event.target.value)} className="mt-2 w-full border border-burgundy/35 bg-wood-light px-4 py-3 text-right">
+                <label className="text-sm font-semibold text-burgundy">الولاية
+                  <select required value={wilaya} onChange={(event) => setWilaya(event.target.value)} className="mt-2 w-full border border-burgundy/35 bg-wood-light px-4 py-3 text-right rounded">
                     <option value="" disabled>اختر الولاية</option>
                     {wilayas.map((item, index) => <option key={`${item}-${index}`} value={item}>{index + 1} - {item}</option>)}
                   </select>
                 </label>
-                <label className="text-sm text-burgundy">البلدية
-                  <input required name="commune" placeholder="اكتب اسم البلدية" className="mt-2 w-full border border-burgundy/35 bg-wood-light px-4 py-3 text-right outline-none focus:border-burgundy" />
+                <label className="text-sm font-semibold text-burgundy">البلدية
+                  <input required name="commune" placeholder="اكتب اسم البلدية" className="mt-2 w-full border border-burgundy/35 bg-wood-light px-4 py-3 text-right outline-none focus:border-burgundy rounded" />
                 </label>
               </div>
-              <label className="block text-sm text-burgundy">عنوان التوصيل
-                <input required name="address" placeholder="الحي، الشارع، رقم المنزل" className="mt-2 w-full border border-burgundy/35 bg-cream px-4 py-3 text-right outline-none focus:border-burgundy" />
+              <label className="block text-sm font-semibold text-burgundy">عنوان التوصيل
+                <input required name="address" placeholder="الحي، الشارع، رقم المنزل" className="mt-2 w-full border border-burgundy/35 bg-cream px-4 py-3 text-right outline-none focus:border-burgundy rounded" />
               </label>
+
               <fieldset className="mt-6">
                 <legend className="mb-3 text-sm font-semibold text-burgundy">طريقة التوصيل</legend>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <label className={`cursor-pointer border px-4 py-4 ${delivery === 'domicile' ? 'border-burgundy bg-wood-light' : 'border-burgundy/25'}`}>
-                    <input type="radio" name="delivery" checked={delivery === 'domicile'} onChange={() => setDelivery('domicile')} className="ml-2 accent-burgundy" />التوصيل للمنزل <span className="block pr-6 text-xs text-burgundy/60">{formatDzd(shippingRates[wilaya]?.domicile ?? 700)}</span>
+                  <label className={`cursor-pointer border px-4 py-4 rounded ${delivery === 'domicile' ? 'border-burgundy bg-wood-light' : 'border-burgundy/25'}`}>
+                    <input type="radio" name="delivery" checked={delivery === 'domicile'} onChange={() => setDelivery('domicile')} className="ml-2 accent-burgundy" />
+                    التوصيل للمنزل <span className="block pr-6 text-xs text-burgundy/70">{formatDzd(shippingRates[wilaya]?.domicile ?? 700)}</span>
                   </label>
-                  <label className={`cursor-pointer border px-4 py-4 ${delivery === 'desk' ? 'border-burgundy bg-wood-light' : 'border-burgundy/25'}`}>
-                    <input type="radio" name="delivery" checked={delivery === 'desk'} onChange={() => setDelivery('desk')} className="ml-2 accent-burgundy" />نقطة الاستلام <span className="block pr-6 text-xs text-burgundy/60">{formatDzd(shippingRates[wilaya]?.desk ?? 450)}</span>
+                  <label className={`cursor-pointer border px-4 py-4 rounded ${delivery === 'desk' ? 'border-burgundy bg-wood-light' : 'border-burgundy/25'}`}>
+                    <input type="radio" name="delivery" checked={delivery === 'desk'} onChange={() => setDelivery('desk')} className="ml-2 accent-burgundy" />
+                    نقطة الاستلام (Bureau) <span className="block pr-6 text-xs text-burgundy/70">{formatDzd(shippingRates[wilaya]?.desk ?? 450)}</span>
                   </label>
                 </div>
               </fieldset>
+
               <div className="mt-6 border-y border-burgundy/15 py-5">
                 <div className="flex items-center justify-between">
                   <span className="font-semibold text-burgundy">ملخص الطلب</span>
                   <ChevronDown className="h-5 w-5 text-burgundy" />
                 </div>
                 <div className="mt-5 flex items-center justify-between border-b border-burgundy/10 pb-4 text-sm">
-                  <span>منظم المفاتيح المعلّق × {quantity}</span>
+                  <span>طاولة أسغار الخشبية × {quantity}</span>
                   <span>{formatDzd(productPrice * quantity)}</span>
                 </div>
                 <div className="mt-4 flex items-center justify-between text-sm">
-                  <span>التوصيل</span>
+                  <span>مصاريف التوصيل</span>
                   <span>{wilaya ? formatDzd(shipping) : 'اختر الولاية'}</span>
                 </div>
                 <div className="mt-5 flex items-center justify-between text-lg font-bold text-burgundy">
@@ -260,18 +394,24 @@ export default function Page() {
                   <span>{formatDzd(total)}</span>
                 </div>
               </div>
+
               {orderError && (
-                <div role="alert" className="border border-red-500/30 bg-red-500/10 p-3 text-center text-xs text-red-700">
+                <div role="alert" className="border border-red-500/30 bg-red-500/10 p-3 text-center text-xs text-red-700 rounded">
                   {orderError}
                 </div>
               )}
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center border border-burgundy/30">
-                  <button type="button" aria-label="إنقاص الكمية" onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-4 py-3 text-burgundy" disabled={submitting || quantity <= 1}><Minus className="h-4 w-4" /></button>
+
+              <div className="flex items-center justify-between gap-4 pt-2">
+                <div className="flex items-center border border-burgundy/30 rounded">
+                  <button type="button" aria-label="إنقاص الكمية" onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-4 py-3 text-burgundy" disabled={submitting || quantity <= 1}>
+                    <Minus className="h-4 w-4" />
+                  </button>
                   <span className="min-w-10 text-center font-semibold">{quantity}</span>
-                  <button type="button" aria-label="زيادة الكمية" onClick={() => setQuantity(Math.min(15, quantity + 1))} className="px-4 py-3 text-burgundy disabled:opacity-40" disabled={submitting || quantity >= 15}><Plus className="h-4 w-4" /></button>
+                  <button type="button" aria-label="زيادة الكمية" onClick={() => setQuantity(Math.min(15, quantity + 1))} className="px-4 py-3 text-burgundy disabled:opacity-40" disabled={submitting || quantity >= 15}>
+                    <Plus className="h-4 w-4" />
+                  </button>
                 </div>
-                <button type="submit" disabled={submitting} className="flex-1 bg-burgundy px-6 py-4 font-semibold tracking-[0.12em] text-cream transition-colors hover:bg-blackwood disabled:opacity-60 flex items-center justify-center gap-2">
+                <button type="submit" disabled={submitting} className="flex-1 bg-burgundy px-6 py-4 font-semibold tracking-[0.12em] text-cream transition-colors hover:bg-blackwood disabled:opacity-60 flex items-center justify-center gap-2 rounded">
                   {submitting ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -287,7 +427,294 @@ export default function Page() {
         )}
       </section>
 
-      <footer className="order-6 bg-blackwood px-5 py-10 text-cream md:px-10"><div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-5 text-center md:flex-row md:text-right"><div><a href="#top" dir="ltr" className="font-serif text-3xl font-bold tracking-[-0.08em]">asyar<span className="text-wood">.</span></a><p className="mt-2 text-xs text-cream/50">متجذّرون في التراث. نصنع للغد.</p></div><p className="text-xs text-cream/40">© 2026 أسيار · كل قطعة لها حكاية</p></div></footer>
+      {/* SECTION 3: EVERYTHING IN ITS PLACE */}
+      <section className="border-t border-burgundy/15 bg-wood-light/20 px-5 py-14 md:px-10 md:py-20">
+        <div className="mx-auto max-w-6xl grid gap-12 md:grid-cols-2 md:items-center">
+          <div className="space-y-6">
+            <div>
+              <span className="text-xs tracking-[0.2em] font-semibold text-wood uppercase">كل شيء في مكانه</span>
+              <h2 className="mt-3 font-serif text-3xl leading-tight text-burgundy md:text-5xl">
+                تصميم يفهم احتياجاتك.
+              </h2>
+            </div>
+
+            <p className="text-lg font-medium text-burgundy/90">
+              كم مرة احتجت إلى مكان تضع فيه حاسوبك، كتابك أو أغراضك اليومية؟
+            </p>
+
+            <p className="leading-relaxed text-burgundy/75">
+              صُممت طاولة أسغار لتمنحك مساحة عملية دون أن تأخذ مساحة كبيرة من منزلك.
+            </p>
+
+            <div className="space-y-5 pt-2">
+              <div className="border-r-4 border-wood pr-4 space-y-1">
+                <h3 className="font-serif text-xl font-bold text-burgundy">سطح قابل للرفع</h3>
+                <p className="text-sm leading-relaxed text-burgundy/75">
+                  ارفع السطح بسهولة لتحصل على وضعية أكثر راحة أثناء استخدام الحاسوب، الكتابة أو الدراسة. وعندما تنتهي، أعده إلى مكانه لتحافظ على مظهر مرتب وأنيق.
+                </p>
+              </div>
+
+              <div className="border-r-4 border-wood pr-4 space-y-1">
+                <h3 className="font-serif text-xl font-bold text-burgundy">مساحة تخزين مخفية</h3>
+                <p className="text-sm leading-relaxed text-burgundy/75">
+                  تحت السطح مساحة عملية يمكنك استخدامها لحفظ: <strong className="text-burgundy">الكتب · الدفاتر · الحاسوب · الشواحن · الإكسسوارات</strong>. كل ما تحتاجه قريب منك، لكن بعيد عن الأنظار.
+                </p>
+              </div>
+
+              <div className="border-r-4 border-wood pr-4 space-y-1">
+                <h3 className="font-serif text-xl font-bold text-burgundy">رف سفلي واسع</h3>
+                <p className="text-sm leading-relaxed text-burgundy/75">
+                  مكان إضافي للكتب، المجلات، جهازك أو الأشياء التي تحب أن تبقى في متناول يدك.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="relative aspect-[4/3] overflow-hidden rounded bg-wood-light shadow-xl md:aspect-[5/4]">
+            <Image
+              src="/asghar/asghar-2.jpg"
+              alt="طاولة أسغار الخشبية - تفاصيل السطح القابل للرفع والتخزين"
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 50vw"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 4: DESIGNED FOR YOUR DAY */}
+      <section className="bg-burgundy px-5 py-14 text-cream md:px-10 md:py-24">
+        <div className="mx-auto max-w-6xl space-y-12">
+          <div className="text-center space-y-3 max-w-2xl mx-auto">
+            <span className="text-xs tracking-[0.2em] font-semibold text-wood-light uppercase">ترافقك في كل لحظة</span>
+            <h2 className="font-serif text-4xl leading-tight md:text-5xl text-cream">
+              صُممت لتناسب يومك
+            </h2>
+            <p className="text-lg text-cream/80">من الصباح إلى المساء.</p>
+          </div>
+
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="border border-cream/15 bg-cream/5 p-6 rounded transition-all hover:bg-cream/10 space-y-3">
+              <Laptop className="h-8 w-8 text-wood-light" />
+              <h3 className="font-serif text-xl font-bold text-cream">للعمل</h3>
+              <p className="text-sm leading-relaxed text-cream/75">
+                ضع حاسوبك، دفتر ملاحظاتك وكل ما تحتاجه لجلسة عمل مريحة.
+              </p>
+            </div>
+
+            <div className="border border-cream/15 bg-cream/5 p-6 rounded transition-all hover:bg-cream/10 space-y-3">
+              <BookOpen className="h-8 w-8 text-wood-light" />
+              <h3 className="font-serif text-xl font-bold text-cream">للدراسة والقراءة</h3>
+              <p className="text-sm leading-relaxed text-cream/75">
+                مساحة مناسبة للكتب والدفاتر، مع إمكانية رفع السطح حسب حاجتك.
+              </p>
+            </div>
+
+            <div className="border border-cream/15 bg-cream/5 p-6 rounded transition-all hover:bg-cream/10 space-y-3">
+              <Coffee className="h-8 w-8 text-wood-light" />
+              <h3 className="font-serif text-xl font-bold text-cream">للاسترخاء</h3>
+              <p className="text-sm leading-relaxed text-cream/75">
+                ضع قهوتك، كتابك وأغراضك بجانبك واستمتع بوقتك.
+              </p>
+            </div>
+
+            <div className="border border-cream/15 bg-cream/5 p-6 rounded transition-all hover:bg-cream/10 space-y-3">
+              <Sofa className="h-8 w-8 text-wood-light" />
+              <h3 className="font-serif text-xl font-bold text-cream">بجانب الأريكة</h3>
+              <p className="text-sm leading-relaxed text-cream/75">
+                تصميمها يجعلها مثالية كطاولة جانبية في غرفة المعيشة أو غرفة النوم.
+              </p>
+            </div>
+          </div>
+
+          <div className="relative aspect-[16/9] max-w-4xl mx-auto overflow-hidden rounded bg-wood-light shadow-2xl">
+            <Image
+              src="/asghar/asghar-3.jpg"
+              alt="طاولة أسغار الخشبية في صالة معيشة جانب الأريكة"
+              fill
+              className="object-cover"
+              sizes="(max-width: 1024px) 100vw, 85vw"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 5: WARMTH OF WOOD */}
+      <section className="px-5 py-14 md:px-10 md:py-20">
+        <div className="mx-auto max-w-6xl grid gap-12 md:grid-cols-12 md:items-center">
+          <div className="relative aspect-[4/5] overflow-hidden rounded bg-wood-light shadow-xl md:col-span-6">
+            <Image
+              src="/asghar/asghar-4.jpg"
+              alt="طاولة أسغار الخشبية بجانب السرير في ليلة هادئة"
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 45vw"
+            />
+          </div>
+
+          <div className="space-y-6 md:col-span-6 md:pr-4">
+            <span className="text-xs tracking-[0.2em] font-semibold text-wood uppercase">الأصالة والملمس الطبيعي</span>
+            <h2 className="font-serif text-3xl leading-tight text-burgundy md:text-5xl">
+              الخشب الذي يضيف الدفء
+            </h2>
+            <p className="text-lg font-medium text-wood">قطعة لها حضورها الخاص.</p>
+
+            <div className="space-y-4 text-base leading-relaxed text-burgundy/80">
+              <p>
+                الخشب ليس مجرد مادة.
+              </p>
+              <p>
+                ملمسه، لونه وتفاصيل خطوطه تمنح المساحة إحساسًا أكثر دفئًا وأناقة.
+              </p>
+              <p>
+                اخترنا تصميمًا بسيطًا يحافظ على جمال الخشب الطبيعي دون تفاصيل زائدة، حتى تنسجم الطاولة بسهولة مع الديكور العصري أو التقليدي.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 6: WHY ASGHAR TABLE */}
+      <section className="border-y border-burgundy/15 bg-wood-light/10 px-5 py-14 md:px-10 md:py-20">
+        <div className="mx-auto max-w-6xl space-y-12">
+          <div className="text-center space-y-3">
+            <span className="text-xs tracking-[0.2em] font-semibold text-wood uppercase">المميزات الأساسية</span>
+            <h2 className="font-serif text-4xl text-burgundy">لماذا طاولة أسغار؟</h2>
+          </div>
+
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="border border-burgundy/15 bg-cream p-6 rounded shadow-sm space-y-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-burgundy/10 text-burgundy font-bold">1</div>
+              <h3 className="font-serif text-xl font-bold text-burgundy">تصميم عملي</h3>
+              <p className="text-sm leading-relaxed text-burgundy/75">
+                كل جزء فيها له وظيفة، من السطح القابل للرفع إلى مساحة التخزين والرف السفلي.
+              </p>
+            </div>
+
+            <div className="border border-burgundy/15 bg-cream p-6 rounded shadow-sm space-y-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-burgundy/10 text-burgundy font-bold">2</div>
+              <h3 className="font-serif text-xl font-bold text-burgundy">توفير المساحة</h3>
+              <p className="text-sm leading-relaxed text-burgundy/75">
+                تحصل على عدة وظائف في قطعة واحدة دون الحاجة إلى أثاث إضافي.
+              </p>
+            </div>
+
+            <div className="border border-burgundy/15 bg-cream p-6 rounded shadow-sm space-y-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-burgundy/10 text-burgundy font-bold">3</div>
+              <h3 className="font-serif text-xl font-bold text-burgundy">مظهر فاخر</h3>
+              <p className="text-sm leading-relaxed text-burgundy/75">
+                تشطيب خشبي دافئ يمنحها حضورًا أنيقًا في أي غرفة.
+              </p>
+            </div>
+
+            <div className="border border-burgundy/15 bg-cream p-6 rounded shadow-sm space-y-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-burgundy/10 text-burgundy font-bold">4</div>
+              <h3 className="font-serif text-xl font-bold text-burgundy">استخدامات متعددة</h3>
+              <p className="text-sm leading-relaxed text-burgundy/75">
+                للعمل، الدراسة، القراءة، القهوة أو كطاولة جانبية.
+              </p>
+            </div>
+
+            <div className="border border-burgundy/15 bg-cream p-6 rounded shadow-sm space-y-3 sm:col-span-2 lg:col-span-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-burgundy/10 text-burgundy font-bold">5</div>
+              <h3 className="font-serif text-xl font-bold text-burgundy">صُممت للاستخدام اليومي</h3>
+              <p className="text-sm leading-relaxed text-burgundy/75">
+                عملية بما يكفي للاستخدام المستمر، وأنيقة بما يكفي لتبقى جزءًا من ديكور منزلك.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 7: INCLUDED & BRAND STATEMENT */}
+      <section className="px-5 py-14 md:px-10 md:py-20">
+        <div className="mx-auto max-w-5xl grid gap-10 md:grid-cols-2 md:items-center">
+          {/* Brand Statement */}
+          <div className="space-y-6 border-r-2 border-burgundy/20 pr-6">
+            <h2 className="font-serif text-3xl leading-tight text-burgundy md:text-4xl">
+              ليست مجرد قطعة أثاث<br />
+              <span className="text-wood">إنها مساحة صغيرة لك.</span>
+            </h2>
+
+            <div className="space-y-2 text-base leading-relaxed text-burgundy/80">
+              <p>مساحة تعمل فيها.</p>
+              <p>مساحة تقرأ فيها.</p>
+              <p>مساحة تحتفظ فيها بأشيائك.</p>
+              <p>ومكان صغير يجعل يومك أكثر ترتيبًا.</p>
+            </div>
+
+            <p className="font-serif text-lg font-bold text-burgundy pt-2">
+              أسغار — عندما تلتقي الوظيفة بجمال الخشب.
+            </p>
+          </div>
+
+          {/* What will you get? */}
+          <div className="rounded border border-burgundy/20 bg-burgundy text-cream p-8 space-y-6 shadow-lg">
+            <h3 className="font-serif text-2xl font-bold text-wood-light border-b border-cream/20 pb-4">
+              ماذا ستحصل عليه؟
+            </h3>
+
+            <ul className="space-y-3.5 text-sm text-cream/90">
+              <li className="flex items-center gap-3">
+                <CheckCircle2 className="h-5 w-5 text-wood-light shrink-0" />
+                <span>طاولة أسغار الخشبية</span>
+              </li>
+              <li className="flex items-center gap-3">
+                <CheckCircle2 className="h-5 w-5 text-wood-light shrink-0" />
+                <span>سطح علوي قابل للرفع</span>
+              </li>
+              <li className="flex items-center gap-3">
+                <CheckCircle2 className="h-5 w-5 text-wood-light shrink-0" />
+                <span>مساحة تخزين داخلية</span>
+              </li>
+              <li className="flex items-center gap-3">
+                <CheckCircle2 className="h-5 w-5 text-wood-light shrink-0" />
+                <span>رف سفلي</span>
+              </li>
+              <li className="flex items-center gap-3">
+                <CheckCircle2 className="h-5 w-5 text-wood-light shrink-0" />
+                <span>تصميم عملي ومتعدد الاستخدامات</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 8: FINAL CALL TO ACTION BANNER */}
+      <section className="bg-wood-light/30 px-5 py-12 text-center md:px-10 md:py-16 border-t border-burgundy/15">
+        <div className="mx-auto max-w-3xl space-y-6">
+          <h2 className="font-serif text-3xl font-bold text-burgundy md:text-5xl">
+            اجعل مساحتك أكثر ترتيبًا
+          </h2>
+          <div className="space-y-1 text-lg text-burgundy/80">
+            <p>لا تحتاج دائمًا إلى قطعة أثاث أكبر.</p>
+            <p className="font-bold text-burgundy">أحيانًا، تحتاج فقط إلى تصميم أذكى.</p>
+          </div>
+
+          <div className="pt-4">
+            <a
+              href="#order"
+              className="inline-flex items-center justify-center gap-2 bg-burgundy px-10 py-4.5 font-semibold text-cream text-lg shadow-lg transition-all hover:bg-blackwood rounded"
+            >
+              <span>اطلب الآن</span>
+              <span>←</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="bg-blackwood px-5 py-10 text-cream md:px-10">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-5 text-center md:flex-row md:text-right">
+          <div>
+            <a href="#top" dir="ltr" className="font-serif text-3xl font-bold tracking-[-0.08em]">
+              asyar<span className="text-wood">.</span>
+            </a>
+            <p className="mt-2 text-sm text-cream/70">أسغار — أشياء يومية، بروح أصيلة.</p>
+          </div>
+          <p className="text-xs text-cream/50">© 2026 أسغار · كل قطعة لها حكاية</p>
+        </div>
+      </footer>
     </main>
   )
 }
