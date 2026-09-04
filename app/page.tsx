@@ -134,16 +134,9 @@ export default function Page() {
 
       {/* Navigation Header */}
       <header className="sticky top-0 z-40 border-b border-burgundy/15 bg-cream/95 backdrop-blur-md px-5 py-4 md:px-10">
-        <div className="mx-auto flex max-w-6xl items-center justify-between">
+        <div className="mx-auto flex max-w-6xl items-center justify-center">
           <a href="#top" dir="ltr" className="font-serif text-3xl font-bold tracking-[-0.08em] text-burgundy transition-opacity hover:opacity-80">
             asyar<span className="text-wood">.</span>
-          </a>
-          <a
-            href="#order"
-            className="inline-flex items-center gap-2 border border-burgundy/30 bg-burgundy px-5 py-2 text-xs font-semibold text-cream transition-all hover:bg-blackwood"
-          >
-            <ShoppingBag className="h-4 w-4" />
-            <span>اطلب الآن ←</span>
           </a>
         </div>
       </header>
