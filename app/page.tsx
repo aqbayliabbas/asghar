@@ -133,10 +133,17 @@ export default function Page() {
       </div>
 
       {/* Navigation Header */}
-      <header className="sticky top-0 z-40 border-b border-burgundy/15 bg-cream/95 backdrop-blur-md px-5 py-4 md:px-10">
+      <header className="sticky top-0 z-40 border-b border-burgundy/15 bg-cream/95 backdrop-blur-md px-5 py-3 md:px-10">
         <div className="mx-auto flex max-w-6xl items-center justify-center">
-          <a href="#top" dir="ltr" className="font-serif text-3xl font-bold tracking-[-0.08em] text-burgundy transition-opacity hover:opacity-80">
-            asyar<span className="text-wood">.</span>
+          <a href="#top" className="transition-opacity hover:opacity-80">
+            <Image
+              src="/logo.png"
+              alt="أسغار - asyar"
+              width={150}
+              height={50}
+              priority
+              className="h-10 w-auto object-contain"
+            />
           </a>
         </div>
       </header>
