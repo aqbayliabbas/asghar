@@ -42,7 +42,7 @@ const productImages = [
   },
 ]
 
-const productPrice = 8500
+const productPrice = 12500
 
 const wilayas = [
   'Adrar', 'Chlef', 'Laghouat', 'Oum El Bouaghi', 'Batna', 'Bejaia', 'Biskra', 'Bechar', 'Blida', 'Bouira',
@@ -171,8 +171,8 @@ export default function Page() {
                 type="button"
                 onClick={() => setSelectedImgIndex(idx)}
                 className={`relative aspect-square overflow-hidden rounded border-2 transition-all ${selectedImgIndex === idx
-                    ? 'border-burgundy ring-2 ring-burgundy/30 scale-[1.03]'
-                    : 'border-transparent opacity-75 hover:opacity-100'
+                  ? 'border-burgundy ring-2 ring-burgundy/30 scale-[1.03]'
+                  : 'border-transparent opacity-75 hover:opacity-100'
                   }`}
                 aria-label={`عرض الصورة ${idx + 1}`}
               >
