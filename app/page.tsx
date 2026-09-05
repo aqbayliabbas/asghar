@@ -42,7 +42,7 @@ const productImages = [
   },
 ]
 
-const productPrice = 4000
+const productPrice = 8500
 
 const wilayas = [
   'Adrar', 'Chlef', 'Laghouat', 'Oum El Bouaghi', 'Batna', 'Bejaia', 'Biskra', 'Bechar', 'Blida', 'Bouira',
@@ -116,7 +116,7 @@ export default function Page() {
     if (res.success) {
       setSubmitted(true)
       if (typeof window !== 'undefined' && (window as any).fbq) {
-        ;(window as any).fbq('track', 'Purchase', { value: total, currency: 'DZD' })
+        ; (window as any).fbq('track', 'Purchase', { value: total, currency: 'DZD' })
       }
     } else if ((res as any).limitReached) {
       setLimitReached(true)
@@ -163,11 +163,10 @@ export default function Page() {
                 key={img.src}
                 type="button"
                 onClick={() => setSelectedImgIndex(idx)}
-                className={`relative aspect-square overflow-hidden rounded border-2 transition-all ${
-                  selectedImgIndex === idx
+                className={`relative aspect-square overflow-hidden rounded border-2 transition-all ${selectedImgIndex === idx
                     ? 'border-burgundy ring-2 ring-burgundy/30 scale-[1.03]'
                     : 'border-transparent opacity-75 hover:opacity-100'
-                }`}
+                  }`}
                 aria-label={`عرض الصورة ${idx + 1}`}
               >
                 <Image src={img.src} alt={img.alt} fill className="object-cover" sizes="120px" />
