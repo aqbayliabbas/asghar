@@ -42,7 +42,7 @@ const productImages = [
   },
 ]
 
-const productPrice = 12500
+const productPrice = 9500
 
 const wilayas = [
   'Adrar', 'Chlef', 'Laghouat', 'Oum El Bouaghi', 'Batna', 'Bejaia', 'Biskra', 'Bechar', 'Blida', 'Bouira',
