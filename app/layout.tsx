@@ -4,24 +4,25 @@ import { Cairo } from 'next/font/google'
 import Script from 'next/script'
 import './globals.css'
 
-const cairo = Cairo({ subsets: ['arabic', 'latin'], variable: '--font-cairo', weight: ['400', '500', '600', '700', '800'] })
+const cairo = Cairo({
+  subsets: ['arabic', 'latin'],
+  variable: '--font-cairo',
+  weight: ['400', '500', '600', '700', '800'],
+})
 
 export const metadata: Metadata = {
-  title: 'أسيار — متجذّرون في التراث. نصنع للغد.',
-  description: 'قطع خشبية يومية خالدة، مصنوعة بعناية من أسيار.',
-  generator: 'v0.app',
+  title: 'نُسكي | طقم الصلاة المتنقل الفاخر',
+  description: 'طقم صلاة كامل، سجادة خفيفة وحقيبة أنيقة ترافقكِ أينما كنتِ. توصيل إلى 58 ولاية والدفع عند الاستلام.',
+  generator: 'Next.js',
   icons: {
-    icon: '/favicon.png',
-    apple: '/favicon.png',
+    icon: '/nouski/brand-mark.png',
+    apple: '/nouski/brand-mark.png',
   },
 }
 
 export const viewport: Viewport = {
-  colorScheme: 'light dark',
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: 'white' },
-    { media: '(prefers-color-scheme: dark)', color: 'black' },
-  ],
+  colorScheme: 'light',
+  themeColor: '#fff9f4',
 }
 
 export default function RootLayout({
@@ -32,7 +33,7 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl" className="bg-cream light">
       <head>
-        <link rel="icon" href="/favicon.png" type="image/png" sizes="any" />
+        <link rel="icon" href="/nouski/brand-mark.png" type="image/png" sizes="any" />
         <Script
           id="fb-pixel"
           strategy="afterInteractive"
