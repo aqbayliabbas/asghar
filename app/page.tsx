@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { FormEvent, useState } from 'react'
+import { FormEvent, useEffect, useState } from 'react'
 import {
   BriefcaseBusiness,
   Check,
@@ -22,24 +22,23 @@ import {
   Truck,
 } from 'lucide-react'
 import { createOrder } from './actions/createOrder'
+import { getProductColors, getProductImages, getProductSettings, ProductColor, ProductImageItem } from './actions/adminProduct'
 
-const productImages = [
-  { src: '/nouski/olive-look.png', alt: 'سيدة ترتدي طقم صلاة نُسكي الزيتوني' },
-  { src: '/nouski/set-flatlay.png', alt: 'مكونات طقم صلاة نُسكي مرتبة على سجادة الصلاة' },
-  { src: '/nouski/prayer-garments.png', alt: 'طقمَا صلاة نُسكي باللون الزيتوني' },
-  { src: '/nouski/color-pouches.png', alt: 'حقائب نُسكي بألوان وردية وعنابية وبيج ولافندر' },
+const defaultProductImages: ProductImageItem[] = [
+  { id: '1', url: '/nouski/olive-look.png', alt: 'سيدة ترتدي طقم صلاة نُسكي الزيتوني', is_active: true },
+  { id: '2', url: '/nouski/set-flatlay.png', alt: 'مكونات طقم صلاة نُسكي مرتبة على سجادة الصلاة', is_active: true },
+  { id: '3', url: '/nouski/prayer-garments.png', alt: 'طقمَا صلاة نُسكي باللون الزيتوني', is_active: true },
+  { id: '4', url: '/nouski/color-pouches.png', alt: 'حقائب نُسكي بألوان وردية وعنابية وبيج ولافندر', is_active: true },
 ]
 
-const colors = [
-  { name: 'وردي', value: '#efa9ba' },
-  { name: 'عنابي', value: '#761d49' },
-  { name: 'زيتوني', value: '#666d4d' },
-  { name: 'لافندر', value: '#9d82c8' },
-  { name: 'بيج', value: '#e4c9a4' },
-  { name: 'أزرق', value: '#183552' },
+const defaultColors: ProductColor[] = [
+  { id: '1', name: 'وردي', hex: '#efa9ba', is_active: true },
+  { id: '2', name: 'عنابي', hex: '#761d49', is_active: true },
+  { id: '3', name: 'زيتوني', hex: '#666d4d', is_active: true },
+  { id: '4', name: 'لافندر', hex: '#9d82c8', is_active: true },
+  { id: '5', name: 'بيج', hex: '#e4c9a4', is_active: true },
+  { id: '6', name: 'أزرق', hex: '#183552', is_active: true },
 ]
-
-const productPrice = 2600
 
 const wilayas = [
   'Adrar', 'Chlef', 'Laghouat', 'Oum El Bouaghi', 'Batna', 'Béjaïa', 'Biskra', 'Béchar', 'Blida', 'Bouira',
@@ -78,6 +77,15 @@ const shippingRates: Record<string, { domicile: number; desk: number }> = {
 const formatDzd = (value: number) => `${value.toLocaleString('fr-DZ')} دج`
 
 export default function Page() {
+  const [productPrice, setProductPrice] = useState<number>(2600)
+  const [productTitle, setProductTitle] = useState<string>('صلاتكِ براحة، أينما كنتِ.')
+  const [productSubtitle, setProductSubtitle] = useState<string>('طقم صلاة أنيق وخفيف يجمع كل ما تحتاجينه في حقيبة واحدة صغيرة — جاهز للعمل، الجامعة أو السفر.')
+  const [brandName, setBrandName] = useState<string>('نُسكي — NOUSKI')
+  const [footerText, setFooterText] = useState<string>('طقم الصلاة المتنقل الفاخر · توصيل لـ 69 ولاية')
+
+  const [colors, setColors] = useState<ProductColor[]>(defaultColors)
+  const [productImages, setProductImages] = useState<ProductImageItem[]>(defaultProductImages)
+
   const [selectedImage, setSelectedImage] = useState(0)
   const [selectedColor, setSelectedColor] = useState('وردي')
   const [quantity, setQuantity] = useState(1)
@@ -89,10 +97,38 @@ export default function Page() {
   const [limitReached, setLimitReached] = useState(false)
   const [orderError, setOrderError] = useState<string | null>(null)
 
+  useEffect(() => {
+    async function loadProductData() {
+      const [settings, fetchedColors, fetchedImages] = await Promise.all([
+        getProductSettings(),
+        getProductColors(false), // only active
+        getProductImages(false), // only active
+      ])
+
+      if (settings) {
+        setProductPrice(settings.price)
+        if (settings.title) setProductTitle(settings.title)
+        if (settings.subtitle) setProductSubtitle(settings.subtitle)
+        if (settings.brand_name) setBrandName(settings.brand_name)
+        if (settings.footer_text) setFooterText(settings.footer_text)
+      }
+      if (fetchedColors && fetchedColors.length > 0) {
+        setColors(fetchedColors)
+        setSelectedColor(fetchedColors[0].name)
+      }
+      if (fetchedImages && fetchedImages.length > 0) {
+        setProductImages(fetchedImages)
+      }
+    }
+    loadProductData()
+  }, [])
+
   const shipping = wilaya
     ? shippingRates[wilaya]?.[delivery] ?? (delivery === 'domicile' ? 700 : 450)
     : 0
   const total = productPrice * quantity + shipping
+
+  const currentImage = productImages[selectedImage] || productImages[0] || defaultProductImages[0]
 
   const submitOrder = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -155,7 +191,7 @@ export default function Page() {
         </div>
       </div>
 
-      {/* 2. NAVBAR (Immediately after announcement bar) */}
+      {/* 2. NAVBAR */}
       <header className="site-navbar">
         <div className="navbar-container">
           <a href="#" className="brand-logo">
@@ -170,7 +206,7 @@ export default function Page() {
       </header>
 
       <main className="main-content">
-        {/* 3. SINGLE MAIN SECTION: SQUARE GALLERY + PRODUCT INFO + FORM + PRICE + CTA */}
+        {/* 3. MAIN SECTION */}
         <section className="product-single-section">
           <div className="product-single-container">
             
@@ -178,8 +214,8 @@ export default function Page() {
             <div className="product-gallery-col">
               <div className="gallery-main-square relative aspect-square w-full">
                 <Image
-                  src={productImages[selectedImage].src}
-                  alt={productImages[selectedImage].alt}
+                  src={currentImage.url || (currentImage as any).src}
+                  alt={currentImage.alt || 'صورة المنتج'}
                   fill
                   priority
                   className="object-cover rounded-xl"
@@ -192,25 +228,27 @@ export default function Page() {
               </div>
 
               {/* SQUARE THUMBNAILS */}
-              <div className="gallery-thumbnails">
-                {productImages.map((image, index) => (
-                  <button
-                    key={image.src}
-                    type="button"
-                    className={`thumb-square relative aspect-square ${selectedImage === index ? 'active' : ''}`}
-                    onClick={() => setSelectedImage(index)}
-                    aria-label={`عرض الصورة ${index + 1}`}
-                  >
-                    <Image
-                      src={image.src}
-                      alt=""
-                      fill
-                      className="object-cover rounded-lg"
-                      sizes="100px"
-                    />
-                  </button>
-                ))}
-              </div>
+              {productImages.length > 1 && (
+                <div className="gallery-thumbnails">
+                  {productImages.map((image, index) => (
+                    <button
+                      key={image.id || image.url}
+                      type="button"
+                      className={`thumb-square relative aspect-square ${selectedImage === index ? 'active' : ''}`}
+                      onClick={() => setSelectedImage(index)}
+                      aria-label={`عرض الصورة ${index + 1}`}
+                    >
+                      <Image
+                        src={image.url || (image as any).src}
+                        alt=""
+                        fill
+                        className="object-cover rounded-lg"
+                        sizes="100px"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
 
               {/* TRUST HIGHLIGHTS */}
               <div className="gallery-trust-list">
@@ -233,12 +271,15 @@ export default function Page() {
             <div className="product-info-form-col">
               <div className="product-header">
                 <span className="product-tag">طقم الصلاة المتنقل</span>
-                <h1 className="product-title">صلاتكِ براحة، أينما كنتِ.</h1>
+                <h1 className="product-title">{productTitle}</h1>
                 <p className="product-subtitle">
-                  طقم صلاة أنيق وخفيف يجمع كل ما تحتاجينه في حقيبة واحدة صغيرة — جاهز للعمل، الجامعة أو السفر.
+                  {productSubtitle}
                 </p>
 
-                
+                <div className="price-tag-wrapper flex items-baseline gap-2 mt-3">
+                  <span className="text-2xl font-bold text-slate-900">{formatDzd(productPrice)}</span>
+                  <span className="text-xs text-slate-500 font-medium">+ مصاريف التوصيل حسب الولاية</span>
+                </div>
               </div>
 
               {/* FORM & SUBMIT */}
@@ -276,7 +317,7 @@ export default function Page() {
                     <div className="color-swatches-grid">
                       {colors.map((c) => (
                         <button
-                          key={c.name}
+                          key={c.id || c.name}
                           type="button"
                           className={`color-swatch-btn ${selectedColor === c.name ? 'active' : ''}`}
                           onClick={() => setSelectedColor(c.name)}
@@ -284,7 +325,7 @@ export default function Page() {
                         >
                           <span
                             className="swatch-circle"
-                            style={{ backgroundColor: c.value }}
+                            style={{ backgroundColor: c.hex || (c as any).value }}
                           >
                             {selectedColor === c.name && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
                           </span>
@@ -449,170 +490,80 @@ export default function Page() {
 
                   {orderError && <p className="error-message" role="alert">{orderError}</p>}
 
-                  {/* SUBMIT BUTTON */}
                   <button
                     type="submit"
-                    className="submit-order-btn"
-                    disabled={submitting || !wilaya}
+                    disabled={submitting}
+                    className="submit-btn text-base font-bold flex items-center justify-center gap-2"
                   >
                     {submitting ? (
                       <>
                         <Loader2 className="w-5 h-5 animate-spin" />
-                        <span>جارٍ تسجيل الطلب...</span>
+                        <span>جاري تسجيل الطلب...</span>
                       </>
                     ) : (
                       <>
-                        <ShoppingBag className="w-5 h-5 ml-1" />
-                        <span>تأكيد الطلب — {formatDzd(total)}</span>
+                        <ShoppingBag className="w-5 h-5" />
+                        <span>تأكيد الطلب والدفع عند الاستلام ({formatDzd(total)})</span>
                       </>
                     )}
                   </button>
-
-                  <p className="cod-reassurance">
-                    <ShieldCheck className="w-4 h-4 text-burgundy shrink-0" />
-                    <span>الدفع نقدًا عند الاستلام • المعاينة قبل الدفع</span>
-                  </p>
                 </form>
               )}
             </div>
-
           </div>
         </section>
 
-        {/* 4. DESCRIPTION SECTION (Directly following the main product section) */}
-        <section className="product-description-section">
-          <div className="description-container">
+        {/* 4. DETAILS / BENEFITS GRID */}
+        <section className="details-section">
+          <div className="details-container">
+            <h2 className="section-title">لماذا ستعشقين طقم نُسكي؟</h2>
             
-            <div className="section-heading">
-              <span className="heading-kicker">تفاصيل طقم نُسكي</span>
-              <h2>طقم متكامل، خفيف، ومصمم بعناية.</h2>
-              <p>
-                لا بحث عن سجادة، ولا طقم يأخذ مساحة كبيرة. افتحي نُسكي وستجدين كل شيء مرتبًا وجاهزًا في ثوانٍ.
-              </p>
-            </div>
-
-            {/* 3 CORE PIECES GRID */}
-            <div className="pieces-grid">
-              
-              <div className="piece-card">
-                <div className="piece-image-wrap relative aspect-square w-full">
-                  <Image
-                    src="/nouski/set-flatlay.png"
-                    alt="طقم نُسكي كاملًا داخل سجادة الصلاة"
-                    fill
-                    className="object-cover rounded-xl"
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                  />
+            <div className="benefits-grid">
+              <div className="benefit-card">
+                <div className="benefit-icon">
+                  <BriefcaseBusiness className="w-6 h-6 text-burgundy" />
                 </div>
-                <div className="piece-content">
-                  <span className="piece-num">01</span>
-                  <h3>طقم صلاة كامل</h3>
-                  <p>ثوب صلاة ساتر وواسع مصمم بقماش ناعم وخفيف، يمنحكِ الراحة والسكينة أثناء الصلاة.</p>
-                </div>
+                <h3>حقيبة صغيرة متناسقة</h3>
+                <p>تتسع في أي حقيبة يد دون أن تأخذ مساحة، ليكون طقمك معكِ أينما تنقلتِ.</p>
               </div>
 
-              <div className="piece-card">
-                <div className="piece-image-wrap relative aspect-square w-full">
-                  <Image
-                    src="/nouski/prayer-garments.png"
-                    alt="سجادة صلاة خفيفة"
-                    fill
-                    className="object-cover rounded-xl"
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                  />
+              <div className="benefit-card">
+                <div className="benefit-icon">
+                  <Sparkles className="w-6 h-6 text-burgundy" />
                 </div>
-                <div className="piece-content">
-                  <span className="piece-num">02</span>
-                  <h3>سجادة خفيفة قابلة للطي</h3>
-                  <p>سجادة صلاة خفيفة الوزن تُطوى بحجم صغير دون أن تشغل أي مساحة في حقيبتكِ.</p>
-                </div>
+                <h3>قماش ناعم ولا يتجعد</h3>
+                <p>مصنوع من أقمشة مختارة بعناية توفر لكِ الراحة والانتعاش أثناء الصلاة.</p>
               </div>
 
-              <div className="piece-card">
-                <div className="piece-image-wrap relative aspect-square w-full">
-                  <Image
-                    src="/nouski/color-pouches.png"
-                    alt="حقيبة أنيقة للحفظ"
-                    fill
-                    className="object-cover rounded-xl"
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                  />
+              <div className="benefit-card">
+                <div className="benefit-icon">
+                  <GraduationCap className="w-6 h-6 text-burgundy" />
                 </div>
-                <div className="piece-content">
-                  <span className="piece-num">03</span>
-                  <h3>حقيبة مبطّنة أنيقة</h3>
-                  <p>حقيبة قماشية مرتبة تجمع الثوب والسجادة معًا في تنسيق أنيق ومحمي.</p>
-                </div>
+                <h3>مثالي للعمل والجامعة</h3>
+                <p>تصميم عصري ساتر وأنيق يضمن لكِ الجاهزية التامة للصلوات في وقتها.</p>
               </div>
 
-            </div>
-
-            {/* USE CASES SHOWCASE */}
-            <div className="use-cases-banner">
-              <div className="use-cases-text">
-                <span className="banner-tag">جاهزة في أي مكان</span>
-                <h2>رفيقة يومكِ خارج البيت.</h2>
-                <p>صُممت لترافقكِ بسهولة وتضمن لكِ أداء صلاتكِ براحة واطمئنان.</p>
-                <div className="use-tags">
-                  <span><GraduationCap className="w-4 h-4 shrink-0" /> الجامعة</span>
-                  <span><BriefcaseBusiness className="w-4 h-4 shrink-0" /> العمل</span>
-                  <span><Plane className="w-4 h-4 shrink-0" /> السفر</span>
-                  <span><Home className="w-4 h-4 shrink-0" /> البيت</span>
+              <div className="benefit-card">
+                <div className="benefit-icon">
+                  <Plane className="w-6 h-6 text-burgundy" />
                 </div>
-              </div>
-              <div className="use-cases-img relative aspect-square w-full">
-                <Image
-                  src="/nouski/olive-look.png"
-                  alt="طقم نُسكي عند الاستخدام"
-                  fill
-                  className="object-cover rounded-2xl"
-                  sizes="(max-width: 768px) 100vw, 40vw"
-                />
+                <h3>رفيق السفر والرحلات</h3>
+                <p>خفيف الوزن وسهل التوضيب، خياركِ الأمثل للمطارات والسفريات والمناسبات.</p>
               </div>
             </div>
-
-            {/* FAQ */}
-            <div className="faq-block">
-              <h3 className="faq-title">أسئلة شائعة</h3>
-              <div className="faq-items">
-                <details className="faq-item">
-                  <summary>
-                    <span>ماذا يحتوي طقم نُسكي؟</span>
-                    <Plus className="w-4 h-4 icon-plus" />
-                  </summary>
-                  <p>يحتوي على طقم صلاة ساتر، سجادة صلاة خفيفة قابلة للطي، وحقيبة مبطّنة لحفظهما معًا.</p>
-                </details>
-
-                <details className="faq-item">
-                  <summary>
-                    <span>كيف يتم حساب سعر التوصيل؟</span>
-                    <Plus className="w-4 h-4 icon-plus" />
-                  </summary>
-                  <p>عند اختيار ولايتكِ وطريقة التوصيل (منزل أو مكتب) داخل استمارة الطلب، يُحسب السعر تلقائيًا ويرفق بالمجموع.</p>
-                </details>
-
-                <details className="faq-item">
-                  <summary>
-                    <span>متى يكون الدفع؟</span>
-                    <Plus className="w-4 h-4 icon-plus" />
-                  </summary>
-                  <p>الدفع يكون نقدًا عند استلام الطلب ومعاينة المنتج بحضور عون التوصيل.</p>
-                </details>
-              </div>
-            </div>
-
           </div>
         </section>
       </main>
 
-      {/* FOOTER */}
-      <footer className="minimal-footer">
-        <div className="footer-brand">
-          <strong>نُسكي</strong>
-          <span>NOUSKI</span>
+      {/* 5. FOOTER */}
+      <footer className="site-footer">
+        <div className="footer-container">
+          <div className="footer-brand">
+            <strong>{brandName}</strong>
+            <p>{footerText}</p>
+          </div>
+          <p className="copyright">© {new Date().getFullYear()} جميع الحقوق محفوظة لـ {brandName.split('—')[0]?.trim() || brandName}.</p>
         </div>
-        <p>رفيقة لحظاتكِ الهادئة، أينما كنتِ.</p>
-        <small>© 2026 NOUSKI. جميع الحقوق محفوظة.</small>
       </footer>
     </div>
   )
