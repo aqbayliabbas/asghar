@@ -13,6 +13,8 @@ export interface OrderData {
   productPrice: number
   shippingPrice: number
   totalPrice: number
+  /** One color name per ordered item — e.g. ["وردي", "عنابي"] for qty=2 */
+  colorsPerItem?: string[]
 }
 
 export async function createOrder(data: OrderData) {
@@ -65,6 +67,9 @@ export async function createOrder(data: OrderData) {
           shipping_price: data.shippingPrice,
           total_price: data.totalPrice,
           status: 'pending',
+          colors_per_item: data.colorsPerItem && data.colorsPerItem.length > 0
+            ? data.colorsPerItem
+            : null,
         },
       ])
       .select('id')

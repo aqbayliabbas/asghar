@@ -87,7 +87,7 @@ export default function Page() {
   const [productImages, setProductImages] = useState<ProductImageItem[]>(defaultProductImages)
 
   const [selectedImage, setSelectedImage] = useState(0)
-  const [selectedColor, setSelectedColor] = useState('وردي')
+  const [colorsPerItem, setColorsPerItem] = useState<string[]>(['وردي'])
   const [quantity, setQuantity] = useState(1)
   const [wilaya, setWilaya] = useState('')
   const [delivery, setDelivery] = useState<'domicile' | 'desk'>('domicile')
@@ -114,7 +114,7 @@ export default function Page() {
       }
       if (fetchedColors && fetchedColors.length > 0) {
         setColors(fetchedColors)
-        setSelectedColor(fetchedColors[0].name)
+        setColorsPerItem([fetchedColors[0].name])
       }
       if (fetchedImages && fetchedImages.length > 0) {
         setProductImages(fetchedImages)
@@ -127,6 +127,27 @@ export default function Page() {
     ? shippingRates[wilaya]?.[delivery] ?? (delivery === 'domicile' ? 700 : 450)
     : 0
   const total = productPrice * quantity + shipping
+
+  // Keep colorsPerItem in sync with quantity changes
+  const handleQuantityChange = (newQty: number) => {
+    setQuantity(newQty)
+    setColorsPerItem((prev) => {
+      if (newQty > prev.length) {
+        // Extend array, filling new slots with the last selected color
+        const lastColor = prev[prev.length - 1] || (colors[0]?.name ?? 'وردي')
+        return [...prev, ...Array(newQty - prev.length).fill(lastColor)]
+      }
+      return prev.slice(0, newQty)
+    })
+  }
+
+  const setColorForItem = (index: number, color: string) => {
+    setColorsPerItem((prev) => {
+      const next = [...prev]
+      next[index] = color
+      return next
+    })
+  }
 
   const currentImage = productImages[selectedImage] || productImages[0] || defaultProductImages[0]
 
@@ -148,12 +169,13 @@ export default function Page() {
       phone,
       wilaya,
       commune,
-      address: `اللون: ${selectedColor} — ${address}`,
+      address,
       delivery,
       quantity,
       productPrice,
       shippingPrice: shipping,
       totalPrice: total,
+      colorsPerItem,
     })
 
     setSubmitting(false)
@@ -309,30 +331,73 @@ export default function Page() {
                   
                   {/* COLOR PICKER */}
                   <div className="form-group">
-                    <div className="form-group-header">
-                      <span className="step-num">1</span>
-                      <span className="step-title">اختاري اللون:</span>
-                      <strong className="selected-color-name">{selectedColor}</strong>
-                    </div>
-                    <div className="color-swatches-grid">
-                      {colors.map((c) => (
-                        <button
-                          key={c.id || c.name}
-                          type="button"
-                          className={`color-swatch-btn ${selectedColor === c.name ? 'active' : ''}`}
-                          onClick={() => setSelectedColor(c.name)}
-                          aria-label={c.name}
-                        >
-                          <span
-                            className="swatch-circle"
-                            style={{ backgroundColor: c.hex || (c as any).value }}
-                          >
-                            {selectedColor === c.name && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
-                          </span>
-                          <span className="swatch-label">{c.name}</span>
-                        </button>
-                      ))}
-                    </div>
+                    {quantity === 1 ? (
+                      /* ── Single item: classic single-color picker ─────────── */
+                      <>
+                        <div className="form-group-header">
+                          <span className="step-num">1</span>
+                          <span className="step-title">اختاري اللون:</span>
+                          <strong className="selected-color-name">{colorsPerItem[0]}</strong>
+                        </div>
+                        <div className="color-swatches-grid">
+                          {colors.map((c) => (
+                            <button
+                              key={c.id || c.name}
+                              type="button"
+                              className={`color-swatch-btn ${colorsPerItem[0] === c.name ? 'active' : ''}`}
+                              onClick={() => setColorForItem(0, c.name)}
+                              aria-label={c.name}
+                            >
+                              <span
+                                className="swatch-circle"
+                                style={{ backgroundColor: c.hex || (c as any).value }}
+                              >
+                                {colorsPerItem[0] === c.name && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
+                              </span>
+                              <span className="swatch-label">{c.name}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    ) : (
+                      /* ── Multiple items: one color picker per article ──────── */
+                      <>
+                        <div className="form-group-header">
+                          <span className="step-num">1</span>
+                          <span className="step-title">اختاري لون كل طقم:</span>
+                        </div>
+                        <div className="multi-color-list">
+                          {Array.from({ length: quantity }, (_, i) => (
+                            <div key={i} className="multi-color-item">
+                              <div className="multi-color-item-header">
+                                <span className="multi-color-badge">{i + 1}</span>
+                                <span className="multi-color-label">الطقم {i + 1}:</span>
+                                <strong className="selected-color-name">{colorsPerItem[i]}</strong>
+                              </div>
+                              <div className="color-swatches-grid">
+                                {colors.map((c) => (
+                                  <button
+                                    key={c.id || c.name}
+                                    type="button"
+                                    className={`color-swatch-btn ${colorsPerItem[i] === c.name ? 'active' : ''}`}
+                                    onClick={() => setColorForItem(i, c.name)}
+                                    aria-label={c.name}
+                                  >
+                                    <span
+                                      className="swatch-circle"
+                                      style={{ backgroundColor: c.hex || (c as any).value }}
+                                    >
+                                      {colorsPerItem[i] === c.name && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
+                                    </span>
+                                    <span className="swatch-label">{c.name}</span>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    )}
                   </div>
 
                   {/* CUSTOMER DETAILS */}
@@ -459,7 +524,7 @@ export default function Page() {
                       <div className="qty-selector">
                         <button
                           type="button"
-                          onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                          onClick={() => handleQuantityChange(Math.max(1, quantity - 1))}
                           aria-label="تقليل الكمية"
                         >
                           <Minus className="w-3.5 h-3.5" />
@@ -467,7 +532,7 @@ export default function Page() {
                         <span>{quantity}</span>
                         <button
                           type="button"
-                          onClick={() => setQuantity((q) => Math.min(5, q + 1))}
+                          onClick={() => handleQuantityChange(Math.min(5, quantity + 1))}
                           aria-label="زيادة الكمية"
                         >
                           <Plus className="w-3.5 h-3.5" />
@@ -493,7 +558,7 @@ export default function Page() {
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="submit-btn text-base font-bold flex items-center justify-center gap-2"
+                    className="submit-order-btn text-base font-bold flex items-center justify-center gap-2"
                   >
                     {submitting ? (
                       <>

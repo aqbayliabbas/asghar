@@ -18,6 +18,8 @@ export interface OrderRecord {
   shipping_price: number
   total_price: number
   status: OrderStatus
+  /** Array of color names, one per item (null for legacy single-color orders) */
+  colors_per_item?: string[] | null
 }
 
 function getSupabaseClient() {

@@ -421,6 +421,54 @@ a {
   color: var(--text-main);
 }
 
+/* MULTI-ITEM COLOR PICKER (qty > 1) */
+.multi-color-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.multi-color-item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  background: var(--bg-main);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  transition: border-color 0.2s ease;
+}
+
+.multi-color-item:hover {
+  border-color: var(--burgundy-light);
+}
+
+.multi-color-item-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.multi-color-badge {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--burgundy), #9e366b);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  shrink: 0;
+}
+
+.multi-color-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
 /* INPUTS GRID */
 .inputs-grid {
   display: grid;

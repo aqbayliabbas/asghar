@@ -124,3 +124,9 @@ SELECT * FROM (VALUES
   ('f1000000-0000-0000-0000-000000000004', '/nouski/color-pouches.png', 'حقائب نُسكي بألوان وردية وعنابية وبيج ولافندر', true, 4)
 ) AS v(id, url, alt, is_active, display_order)
 WHERE NOT EXISTS (SELECT 1 FROM product_images);
+
+
+-- 5. ADD colors_per_item COLUMN TO ORDERS TABLE
+-- Stores an array of color names, one per ordered item (e.g. ["وردي","عنابي","وردي"])
+-- Only populated when quantity > 1; single-item orders continue to embed color in address.
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS colors_per_item JSONB DEFAULT NULL;

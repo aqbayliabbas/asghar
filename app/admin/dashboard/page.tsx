@@ -557,6 +557,19 @@ export default function AdminDashboardPage() {
                               <span className="text-[10px] text-slate-500">
                                 {order.delivery === 'domicile' ? 'À domicile' : 'Point relais'}
                               </span>
+                              {order.colors_per_item && order.colors_per_item.length > 0 && (
+                                <div className="flex flex-wrap gap-1 mt-1.5">
+                                  {order.colors_per_item.map((color, idx) => (
+                                    <span
+                                      key={idx}
+                                      className="inline-flex items-center gap-1 text-[10px] font-medium bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded"
+                                    >
+                                      <span className="text-slate-500 font-mono">{idx + 1}.</span>
+                                      {color}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
                             </td>
 
                             <td className="px-4 py-3 font-semibold text-slate-900 whitespace-nowrap">
@@ -962,13 +975,61 @@ export default function AdminDashboardPage() {
                 <p><span className="text-slate-500">Mode :</span> {selectedOrder.delivery === 'domicile' ? 'À domicile' : 'Point relais'}</p>
               </div>
 
-              <div className="border border-slate-200 rounded p-3 space-y-1.5">
-                <p className="font-semibold text-slate-900">Montant</p>
-                <div className="flex justify-between font-bold text-sm text-slate-900 pt-1">
-                  <span>Total à recouvrer :</span>
-                  <span>{formatDzd(selectedOrder.total_price)}</span>
+              <div className="border border-slate-200 rounded p-3 space-y-3">
+                <p className="font-semibold text-slate-900 flex items-center gap-1.5">
+                  <Palette size={14} className="text-purple-600" />
+                  Commande
+                </p>
+
+                {/* Quantity + delivery */}
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-500">Quantité :</span>
+                  <span className="font-bold text-slate-900 text-sm">
+                    {selectedOrder.quantity} طقم{selectedOrder.quantity > 1 ? '' : ''}
+                  </span>
+                </div>
+
+                {/* Per-item colors */}
+                {selectedOrder.colors_per_item && selectedOrder.colors_per_item.length > 0 ? (
+                  <div className="space-y-1.5">
+                    <p className="text-xs text-slate-500 font-medium">اللون لكل طقم :</p>
+                    {selectedOrder.colors_per_item.map((color, idx) => (
+                      <div key={idx} className="flex items-center gap-2 bg-slate-50 rounded px-2 py-1.5">
+                        <span className="w-5 h-5 rounded-full bg-purple-100 flex items-center justify-center text-[10px] font-bold text-purple-700 shrink-0 border border-purple-200">
+                          {idx + 1}
+                        </span>
+                        <span className="text-xs text-slate-500">الطقم {idx + 1}</span>
+                        <span className="text-xs font-bold text-slate-900 mr-auto">{color}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  /* Legacy orders: color embedded in address field */
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-slate-500">اللون :</span>
+                    <span className="font-bold text-slate-900">
+                      {selectedOrder.address.match(/اللون:\s*([^—\-]+)/)?.[1]?.trim() || '—'}
+                    </span>
+                  </div>
+                )}
+
+                {/* Price breakdown */}
+                <div className="border-t border-slate-100 pt-2 space-y-1 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Prix produit :</span>
+                    <span className="font-medium">{formatDzd(selectedOrder.product_price * selectedOrder.quantity)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Livraison :</span>
+                    <span className="font-medium">{formatDzd(selectedOrder.shipping_price)}</span>
+                  </div>
+                  <div className="flex justify-between font-bold text-sm text-slate-900 pt-1 border-t border-slate-200">
+                    <span>Total à recouvrer :</span>
+                    <span>{formatDzd(selectedOrder.total_price)}</span>
+                  </div>
                 </div>
               </div>
+
             </div>
 
             <div className="flex items-center justify-between border-t border-slate-200 bg-slate-50 px-5 py-3">
@@ -1044,6 +1105,25 @@ export default function AdminDashboardPage() {
               <p className="text-2xl font-bold text-slate-900 mt-1 font-mono">{formatDzd(selectedOrder.total_price)}</p>
             </div>
           </div>
+
+          {selectedOrder.colors_per_item && selectedOrder.colors_per_item.length > 0 && (
+            <div className="border border-slate-300 p-4 rounded space-y-2 text-xs">
+              <h3 className="font-bold text-slate-900 uppercase border-b border-slate-200 pb-1 text-[11px] tracking-wider">
+                ألوان الطقم — COULEURS PAR ARTICLE
+              </h3>
+              <div className="grid grid-cols-2 gap-2 pt-1">
+                {selectedOrder.colors_per_item.map((color, idx) => (
+                  <div key={idx} className="flex items-center gap-2">
+                    <span className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-700 shrink-0 border border-slate-400">
+                      {idx + 1}
+                    </span>
+                    <span className="font-medium text-slate-700">الطقم {idx + 1}:</span>
+                    <span className="font-bold text-slate-900">{color}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </>
