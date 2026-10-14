@@ -110,13 +110,42 @@ export async function updateProductSettings(settings: Partial<ProductSettings>) 
   }
 
   try {
-    const { error } = await supabase
+    const payload = { ...settings, updated_at: new Date().toISOString() }
+    const { data, error } = await supabase
       .from('product_settings')
-      .upsert({ id: 'default', ...settings, updated_at: new Date().toISOString() })
+      .update(payload)
+      .eq('id', 'default')
+      .select('id')
+      .maybeSingle()
 
     if (error) {
-      console.error('Error updating product settings:', error)
-      return { success: false, error: error.message }
+      const hasLegacySettingsSchema = error.code === '42703' || error.code === 'PGRST204'
+
+      if (hasLegacySettingsSchema && settings.price !== undefined) {
+        const { error: priceError } = await supabase
+          .from('product_settings')
+          .update({ price: settings.price, updated_at: payload.updated_at })
+          .eq('id', 'default')
+
+        if (!priceError) {
+          return {
+            success: false,
+            error: 'Le prix a été enregistré. Exécutez supabase_product_settings_migration.sql dans Supabase pour enregistrer aussi les textes.',
+          }
+        }
+      }
+
+      console.error('Error updating product settings:', {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+      })
+      return { success: false, error: error.message || `Supabase error (${error.code})` }
+    }
+
+    if (!data) {
+      return { success: false, error: "La ligne product_settings/default n'existe pas." }
     }
 
     return { success: true }
