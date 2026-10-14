@@ -20,6 +20,7 @@ export interface ProductImageItem {
 }
 
 const DEFAULT_PRICE = 2600
+const MAX_PRODUCT_IMAGE_SIZE = 8 * 1024 * 1024
 
 const DEFAULT_COLORS: ProductColor[] = [
   { id: 'c1000000-0000-0000-0000-000000000001', name: 'وردي', hex: '#efa9ba', is_active: true, display_order: 1 },
@@ -279,6 +280,14 @@ export async function uploadProductImage(formData: FormData) {
 
     if (!file || file.size === 0) {
       return { success: false, error: 'No file selected for upload' }
+    }
+
+    if (!file.type.startsWith('image/')) {
+      return { success: false, error: 'The selected file must be an image' }
+    }
+
+    if (file.size > MAX_PRODUCT_IMAGE_SIZE) {
+      return { success: false, error: 'The image must be smaller than 8 MB' }
     }
 
     const fileExt = file.name.split('.').pop() || 'png'

@@ -49,6 +49,7 @@ const statusLabels: Record<OrderStatus, { label: string; bg: string; text: strin
 }
 
 const formatDzd = (value: number) => `${value.toLocaleString('fr-FR')} DA`
+const MAX_PRODUCT_IMAGE_SIZE = 8 * 1024 * 1024
 
 export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<'orders' | 'product'>('orders')
@@ -274,6 +275,16 @@ export default function AdminDashboardPage() {
       return
     }
 
+    if (!selectedFile.type.startsWith('image/')) {
+      setImageMsg({ type: 'error', text: 'Le fichier sélectionné doit être une image.' })
+      return
+    }
+
+    if (selectedFile.size > MAX_PRODUCT_IMAGE_SIZE) {
+      setImageMsg({ type: 'error', text: "L'image doit faire moins de 8 Mo." })
+      return
+    }
+
     setUploadingImage(true)
     setImageMsg(null)
 
@@ -281,16 +292,22 @@ export default function AdminDashboardPage() {
     formData.append('file', selectedFile)
     formData.append('alt', imageAlt.trim() || selectedFile.name)
 
-    const res = await uploadProductImage(formData)
-    setUploadingImage(false)
+    try {
+      const res = await uploadProductImage(formData)
 
-    if (res.success) {
-      setSelectedFile(null)
-      setImageAlt('')
-      setImageMsg({ type: 'success', text: 'Image téléversée et ajoutée à la boutique !' })
-      fetchProductData()
-    } else {
-      setImageMsg({ type: 'error', text: res.error || 'Erreur lors du téléversement.' })
+      if (res.success) {
+        setSelectedFile(null)
+        setImageAlt('')
+        setImageMsg({ type: 'success', text: 'Image téléversée et ajoutée à la boutique !' })
+        fetchProductData()
+      } else {
+        setImageMsg({ type: 'error', text: res.error || 'Erreur lors du téléversement.' })
+      }
+    } catch (error) {
+      console.error('Image upload request failed:', error)
+      setImageMsg({ type: 'error', text: 'Le téléversement a échoué. Veuillez réessayer.' })
+    } finally {
+      setUploadingImage(false)
     }
   }
 
@@ -844,9 +861,13 @@ export default function AdminDashboardPage() {
                     <input
                       type="file"
                       accept="image/*"
-                      onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                      onChange={(e) => {
+                        setSelectedFile(e.target.files?.[0] || null)
+                        setImageMsg(null)
+                      }}
                       className="w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-slate-900 file:text-white hover:file:bg-slate-800 cursor-pointer"
                     />
+                    <p className="mt-1 text-[10px] text-slate-500">Image JPG, PNG, WebP… jusqu'à 8 Mo.</p>
                   </div>
 
                   <div>
