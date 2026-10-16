@@ -327,7 +327,7 @@ export async function uploadProductImage(formData: FormData) {
     const { error: uploadError } = await supabase.storage
       .from('product-images')
       .upload(storagePath, file, {
-        cacheControl: '3600',
+        cacheControl: '0',
         upsert: true,
       })
 
